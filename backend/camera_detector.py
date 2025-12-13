@@ -10,14 +10,18 @@ import io
 import json
 import os
 import time
-from typing import Optional
+from typing import Optional, Sequence
 
 import cv2
 import httpx
 import requests
+from dotenv import load_dotenv
 from PIL import Image
+from urllib.parse import urlparse
 
 # Configuration
+# Load environment variables from .env if present (for CAMERA_URL, BACKEND_URL, HF_API_TOKEN, etc.)
+load_dotenv()
 CAMERA_URL = os.getenv("CAMERA_URL", "http://192.168.1.100:8080/video")
 # Example: use IP Webcam app on Android or mjpeg-streamer
 BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
@@ -38,6 +42,86 @@ SAFE_LABELS = [
     "person talking", "person sitting", "person walking", "safe",
     "normal activity", "no threat"
 ]
+
+
+def _is_local_camera(source: str) -> bool:
+    """Return True when source refers to a local webcam index."""
+    return source.isdigit() or source in {"/dev/video0", "cam", "webcam"}
+
+
+def _build_candidate_urls(raw_url: str) -> Sequence[str]:
+    """Generate a list of possible stream URLs based on the provided value."""
+    cleaned = raw_url.strip()
+
+    if _is_local_camera(cleaned):
+        # Local webcam indices should be returned directly.
+        return [cleaned]
+
+    parsed = urlparse(cleaned)
+    if not parsed.scheme:
+        # Assume http if scheme missing.
+        cleaned = f"http://{cleaned}"
+        parsed = urlparse(cleaned)
+
+    # Remove trailing slash for consistency
+    cleaned = cleaned.rstrip('/')
+
+    candidates = [cleaned]
+
+    # Build base URL without known video suffixes
+    base = cleaned
+    for suffix in ["/video", "/video/mjpeg", "/mjpeg", "/videofeed", "/stream.mjpg"]:
+        if cleaned.endswith(suffix):
+            base = cleaned[: -len(suffix)]
+            break
+
+    # Standard MJPEG endpoints exposed by IP Webcam
+    standard_suffixes = ["/video", "/video/mjpeg", "/videofeed", "/mjpeg" ]
+
+    for suffix in standard_suffixes:
+        candidate = f"{base}{suffix}"
+        candidates.append(candidate)
+
+    # Snapshot endpoint (cannot be opened by OpenCV but useful for diagnostics)
+    candidates.append(f"{base}/shot.jpg")
+
+    # Remove duplicates while preserving order
+    seen = set()
+    unique_candidates = []
+    for url in candidates:
+        if url not in seen:
+            seen.add(url)
+            unique_candidates.append(url)
+
+    return unique_candidates
+
+
+def _open_camera(source: str) -> Optional[cv2.VideoCapture]:
+    """Attempt to open the camera, trying multiple fallbacks."""
+    candidates = _build_candidate_urls(source)
+
+    for candidate in candidates:
+        if candidate.endswith("shot.jpg"):
+            # OpenCV cannot treat single-shot endpoints as video sources.
+            continue
+
+        if _is_local_camera(candidate):
+            print(f"Trying local webcam at index {candidate}...")
+            cap = cv2.VideoCapture(int(candidate))
+        else:
+            print(f"Trying stream endpoint: {candidate}")
+            cap = cv2.VideoCapture(candidate)
+
+        if cap.isOpened():
+            ret, _ = cap.read()
+            if ret:
+                print(f"✅ Connected to camera stream: {candidate}")
+                return cap
+
+        cap.release()
+
+    print("❌ Unable to open any camera endpoints. Please verify CAMERA_URL or run test_camera.py")
+    return None
 
 
 def query_clip_model(image_base64: str) -> dict:
@@ -141,10 +225,12 @@ def stream_from_camera() -> None:
     print(f"Connecting to camera at {CAMERA_URL}")
     print(f"Backend URL: {BACKEND_URL}")
     print(f"Camera ID: {CAMERA_ID}")
-    
-    cap = cv2.VideoCapture(CAMERA_URL)
-    if not cap.isOpened():
-        print("ERROR: Could not open camera stream. Check CAMERA_URL.")
+
+    cap = _open_camera(CAMERA_URL)
+    if cap is None:
+        print(
+            "TIP: Run 'python test_camera.py' to diagnose connection issues, or set $env:CAMERA_URL = '0' to use your PC webcam."
+        )
         return
     
     frame_count = 0
@@ -157,7 +243,10 @@ def stream_from_camera() -> None:
                 print("WARNING: Failed to read frame. Reconnecting...")
                 cap.release()
                 time.sleep(2)
-                cap = cv2.VideoCapture(CAMERA_URL)
+                cap = _open_camera(CAMERA_URL)
+                if cap is None:
+                    print("ERROR: Reconnection failed. Exiting.")
+                    break
                 continue
             
             frame_count += 1
