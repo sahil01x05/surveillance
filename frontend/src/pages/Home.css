@@ -1,0 +1,236 @@
+/* Home Page Styles */
+.home-page {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+/* Hero Section */
+.hero-section {
+  background: linear-gradient(135deg, rgba(26, 0, 51, 0.9) 0%, rgba(45, 0, 82, 0.95) 100%);
+  border-radius: 16px;
+  padding: 3rem 2rem;
+  margin-bottom: 3rem;
+  border: 2px solid rgba(157, 78, 221, 0.3);
+  box-shadow: 0 8px 32px rgba(157, 78, 221, 0.2);
+}
+
+.hero-content {
+  text-align: center;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.hero-title {
+  font-size: 3rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 1.5rem 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.title-icon {
+  font-size: 3.5rem;
+}
+
+.hero-description {
+  font-size: 1.2rem;
+  color: #c8c8d4;
+  line-height: 1.8;
+  margin: 0 0 2rem 0;
+}
+
+.hero-features {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+  margin-top: 2rem;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: rgba(157, 78, 221, 0.2);
+  padding: 0.75rem 1.5rem;
+  border-radius: 30px;
+  color: #fff;
+  font-weight: 500;
+  border: 1px solid rgba(157, 78, 221, 0.4);
+}
+
+.feature-icon {
+  font-size: 1.5rem;
+}
+
+/* Status Section */
+.status-section {
+  margin-bottom: 3rem;
+}
+
+.section-title {
+  font-size: 2rem;
+  color: #fff;
+  margin: 0 0 1.5rem 0;
+  font-weight: 600;
+}
+
+.status-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.status-card {
+  background: linear-gradient(135deg, rgba(26, 0, 51, 0.8) 0%, rgba(45, 0, 82, 0.9) 100%);
+  border: 1px solid rgba(157, 78, 221, 0.3);
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.status-card:hover {
+  transform: translateY(-4px);
+  border-color: #9d4edd;
+  box-shadow: 0 8px 24px rgba(157, 78, 221, 0.3);
+}
+
+.status-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.status-icon {
+  font-size: 2rem;
+}
+
+.status-header h3 {
+  color: #fff;
+  font-size: 1.25rem;
+  margin: 0;
+  font-weight: 600;
+}
+
+.status-value {
+  margin: 1rem 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.status-connected,
+.status-active {
+  color: #2ecc71;
+}
+
+.status-disconnected,
+.status-inactive {
+  color: #e74c3c;
+}
+
+.status-time {
+  color: #c77dff;
+}
+
+.status-description {
+  color: #9d9db8;
+  font-size: 0.95rem;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* CTA Section */
+.cta-section {
+  background: linear-gradient(135deg, #9d4edd 0%, #c77dff 100%);
+  border-radius: 16px;
+  padding: 3rem 2rem;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(157, 78, 221, 0.4);
+}
+
+.cta-content h2 {
+  font-size: 2rem;
+  color: #fff;
+  margin: 0 0 0.5rem 0;
+  font-weight: 700;
+}
+
+.cta-content p {
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0 0 2rem 0;
+}
+
+.cta-button {
+  background: #fff;
+  color: #9d4edd;
+  border: none;
+  padding: 1rem 2.5rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.cta-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.3);
+  background: #f0f0f0;
+}
+
+.cta-arrow {
+  font-size: 1.5rem;
+  transition: transform 0.3s ease;
+}
+
+.cta-button:hover .cta-arrow {
+  transform: translateX(4px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .home-page {
+    padding: 1rem;
+  }
+
+  .hero-section {
+    padding: 2rem 1.5rem;
+  }
+
+  .hero-title {
+    font-size: 2rem;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .title-icon {
+    font-size: 2.5rem;
+  }
+
+  .hero-description {
+    font-size: 1rem;
+  }
+
+  .hero-features {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .status-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cta-content h2 {
+    font-size: 1.5rem;
+  }
+}
